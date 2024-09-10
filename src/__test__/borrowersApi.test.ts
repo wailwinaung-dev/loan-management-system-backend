@@ -21,14 +21,14 @@ describe('Borrower API Integration Tests', () => {
   it('should create a new borrower', async () => {
     const borrowerData = {
       name: 'John Doe',
-      phone: '1234567890',
+      phone: '09796718690',
       email: 'john.doe@example.com',
       address: '123 Main St',
-      nrc_number: 'AB123456'
+      nrc_number: '5/yay(n)123456'
     };
 
     const res = await request(server)
-      .post('/borrowers')
+      .post('/api/borrowers')
       .send(borrowerData)
       .expect(201);
 
@@ -40,7 +40,7 @@ describe('Borrower API Integration Tests', () => {
 
   it('should fetch all borrowers', async () => {
     const res = await request(server)
-      .get('/borrowers')
+      .get('/api/borrowers')
       .expect(200);
 
     expect(res.body).toBeInstanceOf(Array);
@@ -49,7 +49,7 @@ describe('Borrower API Integration Tests', () => {
 
   it('should fetch a borrower by ID', async () => {
     const res = await request(server)
-      .get(`/borrowers/${borrowerId}`)
+      .get(`/api/borrowers/${borrowerId}`)
       .expect(200);
 
     expect(res.body).toHaveProperty('_id', borrowerId);
@@ -59,14 +59,14 @@ describe('Borrower API Integration Tests', () => {
   it('should update a borrower', async () => {
     const updatedData = {
       name: 'John Doe Updated',
-      phone: '0987654321',
+      phone: '098765432',
       email: 'john.updated@example.com',
       address: '456 Main St Updated',
-      nrc_number: 'CD789012'
+      nrc_number: '5/yay(n)123456'
     };
 
     const res = await request(server)
-      .patch(`/borrowers/${borrowerId}`)
+      .patch(`/api/borrowers/${borrowerId}`)
       .send(updatedData)
       .expect(200);
 
@@ -77,11 +77,11 @@ describe('Borrower API Integration Tests', () => {
 
   it('should delete a borrower', async () => {
     await request(server)
-      .delete(`/borrowers/${borrowerId}`)
+      .delete(`/api/borrowers/${borrowerId}`)
       .expect(204);
 
     const res = await request(server)
-      .get(`/borrowers/${borrowerId}`)
+      .get(`/api/borrowers/${borrowerId}`)
       .expect(404); // Expect 404 because the borrower should be deleted
   });
 });

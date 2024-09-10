@@ -10,7 +10,20 @@ export const createBorrower = async (req: Request, res: Response) => {
     const borrower = await borrowerService.createBorrower(req.body);
     res.status(201).json(borrower);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating borrower' });
+
+    if (error instanceof Error) {
+      const errors = Object.values((error as any).errors).reduce((acc: any, err: any) => {
+        acc[err.path] = err.message;
+        return acc;
+      }, {});
+
+      return res.status(400).json({
+        message: 'Validation Error',
+        errors
+      });
+
+    }
+    res.status(500).json({ message: error });
   }
 };
 
@@ -43,7 +56,21 @@ export const updateBorrower = async (req: Request, res: Response) => {
     }
     res.status(200).json(borrower);
   } catch (error) {
+
+    if (error instanceof Error) {
+      const errors = Object.values((error as any).errors).reduce((acc: any, err: any) => {
+        acc[err.path] = err.message;
+        return acc;
+      }, {});
+
+      return res.status(400).json({
+        message: 'Validation Error',
+        errors
+      });
+
+    }
     res.status(500).json({ message: 'Error updating borrower' });
+    // res.status(500).json({ message: error });
   }
 };
 

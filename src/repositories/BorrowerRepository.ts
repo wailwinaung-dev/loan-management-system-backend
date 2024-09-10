@@ -9,7 +9,7 @@ export class BorrowerRepository implements IBorrowerRepository {
   }
 
   async findAll(): Promise<IBorrower[]> {
-    return await Borrower.find();
+    return await Borrower.find().select('-__v');
   }
 
   async findById(id: string): Promise<IBorrower | null> {
@@ -17,7 +17,7 @@ export class BorrowerRepository implements IBorrowerRepository {
   }
 
   async update(id: string, data: CreateBorrowerDTO): Promise<IBorrower | null> {
-    return await Borrower.findByIdAndUpdate(id, data, { new: true });
+    return await Borrower.findByIdAndUpdate(id, data, { new: true, runValidators: true, context: 'query' });
   }
 
   async delete(id: string): Promise<void> {
