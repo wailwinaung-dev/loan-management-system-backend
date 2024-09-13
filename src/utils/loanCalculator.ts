@@ -15,17 +15,24 @@ export class LoanCalculator {
 
   // Calculate the payment based on the term (monthly, quarterly, or yearly)
   calculatePayment(): number {
-    const rateFactor = this.getRateFactor(); // Calculate based on payment term
+    const rateFactor = LoanCalculator.getRateFactor(this.paymentTerm); // Calculate based on payment term
     const totalPeriods = Math.ceil(this.months / (12 / rateFactor)); // Calculate total periods
     const adjustedRate = this.annualRate / rateFactor / 100;
 
     return (this.principal * adjustedRate) / (1 - Math.pow(1 + adjustedRate, -totalPeriods));
   }
 
+  // Calculate the principal paid for a particular period
+  static calculatePrincipal(remainingBalance: number, payment: number, annualRate: number, paymentTerm: 'monthly' | 'quarterly' | 'yearly'): number {
+    const adjustedRate = annualRate / LoanCalculator.getRateFactor(paymentTerm) / 100;
+    const interestPayment = remainingBalance * adjustedRate;
+    return payment - interestPayment;
+  }
+
   // Calculate the total interest over the term
   calculateTotalInterest(): number {
     const payment = this.calculatePayment();
-    const totalPeriods = Math.ceil(this.months / (12 / this.getRateFactor()));
+    const totalPeriods = Math.ceil(this.months / (12 / LoanCalculator.getRateFactor(this.paymentTerm)));
     return (payment * totalPeriods) - this.principal;
   }
 
@@ -42,7 +49,7 @@ export class LoanCalculator {
 
     const payment = this.calculatePayment();
     let balance = this.principal;
-    const rateFactor = this.getRateFactor();
+    const rateFactor = LoanCalculator.getRateFactor(this.paymentTerm);
     const totalPeriods = Math.ceil(this.months / (12 / rateFactor));
     const adjustedRate = this.annualRate / rateFactor / 100;
 
@@ -79,10 +86,9 @@ export class LoanCalculator {
 
     return schedule;
   }
-
   // Helper method to determine the rate factor based on the payment term
-  private getRateFactor(): number {
-    switch (this.paymentTerm) {
+  private static getRateFactor(paymentTerm: 'monthly' | 'quarterly' | 'yearly'): number {
+    switch (paymentTerm) {
       case 'monthly':
         return 12;
       case 'quarterly':
@@ -95,19 +101,3 @@ export class LoanCalculator {
   }
 }
 
-// Usage example:
-// const principal = 10000; // Loan amount
-// const annualRate = 5; // 5% annual interest
-// const months = 24; // Loan duration in months
-// const paymentTerm = 'monthly'; // Payment term (monthly, quarterly, or yearly)
-// const startDate = new Date('2024-01-01'); // Start date of the loan
-
-// const loanCalculator = new LoanCalculator(principal, annualRate, months, paymentTerm);
-
-// const payment = loanCalculator.calculatePayment();
-// const totalInterest = loanCalculator.calculateTotalInterest();
-// const repaymentSchedule = loanCalculator.generateRepaymentSchedule(startDate);
-
-// console.log(`Payment per period: $${payment.toFixed(2)}`);
-// console.log(`Total Interest Paid: $${totalInterest.toFixed(2)}`);
-// console.table(repaymentSchedule);

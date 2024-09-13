@@ -8,5 +8,5 @@ export interface CreateLoanDto {
     endDate: Date;  // End date of the loan
     interestRate: number;  // Interest rate
     paymentTerm: 'monthly' | 'quarterly' | 'yearly';
-    remainingBalance?: number
+    remainingBalance: number
 }

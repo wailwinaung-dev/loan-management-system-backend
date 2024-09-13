@@ -16,11 +16,22 @@ export class LoanRepository implements ILoanRepository {
     return await Loan.findById(id).populate('borrower');
   }
 
-  async update(id: string, data: CreateLoanDto): Promise<ILoan | null> {
-    return await Loan.findByIdAndUpdate(id, data, { new: true, runValidators: true, context: 'query' });
+  async update(id: string, data: Partial<CreateLoanDto>): Promise<ILoan | null> {
+    
+    const updatedLoan = await Loan.findByIdAndUpdate(id, { $set: data }, { new: true});
+
+    if (!updatedLoan) {
+      throw new Error('Loan not found');
+    }
+
+    return updatedLoan;
   }
 
   async delete(id: string): Promise<void> {
     await Loan.findByIdAndDelete(id);
+  }
+
+  async countByBorrowerId(borrowerId: string): Promise<number> {
+    return Loan.countDocuments({ borrower: borrowerId });
   }
 }

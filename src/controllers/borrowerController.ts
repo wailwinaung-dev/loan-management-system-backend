@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 import { BorrowerService } from '../services/BorrowerService';
 import { BorrowerRepository } from '../repositories/BorrowerRepository';
+import { LoanRepository } from '../repositories/LoanRepository';
 
 const borrowerRepository = new BorrowerRepository();
-const borrowerService = new BorrowerService(borrowerRepository);
+const loanRepository = new LoanRepository();
+const borrowerService = new BorrowerService(borrowerRepository, loanRepository);
 
 export const createBorrower = async (req: Request, res: Response) => {
   try {
@@ -79,6 +81,11 @@ export const deleteBorrower = async (req: Request, res: Response) => {
     await borrowerService.deleteBorrower(req.params.id);
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting borrower' });
+    if(error instanceof Error){
+      res.status(400).send({ error: error.message })
+    }else{
+      res.status(500).json({ message: "Internal Server Error." });
+    }
+    
   }
 };

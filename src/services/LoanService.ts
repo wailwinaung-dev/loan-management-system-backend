@@ -16,7 +16,7 @@ export class LoanService {
     const loanCalculator = new LoanCalculator(data.loanAmount, data.interestRate, months, data.paymentTerm);
     // Call methods
     const totalInterest = loanCalculator.calculateTotalInterest();
-    data.remainingBalance = Math.round(totalInterest + data.loanAmount);
+    data.remainingBalance = data.loanAmount;
 
     return await this.loanRepository.create(data);
   }
@@ -32,8 +32,11 @@ export class LoanService {
       const months: number = differenceInMonths(loan.endDate, loan.startDate);
       // Instantiate the class
       const loanCalculator = new LoanCalculator(loan.loanAmount, loan.interestRate, months, loan.paymentTerm);
+      const totalInterest = loanCalculator.calculateTotalInterest();
       const repaymentSchedule = loanCalculator.generateRepaymentSchedule(loan.startDate)
-      return {loan, repaymentSchedule};
+      let updatedLoan = loan.toObject();
+      updatedLoan.totalInterest = totalInterest
+      return {loan: updatedLoan, repaymentSchedule};
     }
 
     return loan;

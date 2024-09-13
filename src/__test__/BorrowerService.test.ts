@@ -1,6 +1,7 @@
 import { BorrowerService } from '../services/BorrowerService';
 import { IBorrowerRepository } from '../repositories/IBorrowerRepository';
 import { IBorrower } from '../models/Borrower';
+import { ILoanRepository } from '../repositories/ILoanRepository';
 
 // Mock the BorrowerRepository
 class MockBorrowerRepository implements IBorrowerRepository {
@@ -11,13 +12,25 @@ class MockBorrowerRepository implements IBorrowerRepository {
     delete = jest.fn();
 }
 
+class MockLoanRepository implements ILoanRepository {
+    countByBorrowerId = jest.fn();
+    create = jest.fn();
+    findAll = jest.fn();
+    findById = jest.fn();
+    update = jest.fn();
+    delete = jest.fn();
+}
+
 describe('BorrowerService', () => {
+
     let mockRepository: MockBorrowerRepository; 
+    let mockLoanRepository: MockLoanRepository;
     let borrowerService: BorrowerService;
 
     beforeEach(() => {
         mockRepository = new MockBorrowerRepository();
-        borrowerService = new BorrowerService(mockRepository);
+        mockLoanRepository = new MockLoanRepository()
+        borrowerService = new BorrowerService(mockRepository, mockLoanRepository);
     });
 
     it('should create a borrower', async () => {
@@ -113,6 +126,22 @@ describe('BorrowerService', () => {
 
         expect(mockRepository.delete).toHaveBeenCalledWith('123');
     });
+
+    it('should throw an error when trying to delete a borrower with existing loans', async () => {
+        // Mock the loan repository to return a count of 1 (indicating loans exist)
+        (mockLoanRepository.countByBorrowerId as jest.Mock).mockResolvedValue(1);
+    
+        await expect(borrowerService.deleteBorrower('123')).rejects.toThrow('Cannot delete borrower. The borrower is linked with existing loans.');
+        expect(mockLoanRepository.countByBorrowerId).toHaveBeenCalledWith('123');
+    });
+
+    it('should throw an error if borrower deletion fails', async () => {
+        (mockRepository.delete as jest.Mock).mockRejectedValue(new Error('Error deleting borrower'));
+    
+        await expect(borrowerService.deleteBorrower('123')).rejects.toThrow('Error deleting borrower');
+    });
+    
+    
 
     it('should throw an error if borrower creation fails', async () => {
         const borrowerData = {
