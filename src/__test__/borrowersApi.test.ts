@@ -2,6 +2,7 @@ import request from 'supertest';
 import { server } from '../server'; // Adjust the import path if necessary
 import mongoose from 'mongoose';
 import { Borrower } from '../models/Borrower'; // Adjust the import path if necessary
+import { Loan } from '../models/Loan';
 
 describe('Borrower API Integration Tests', () => {
   let borrowerId: string;
@@ -9,11 +10,14 @@ describe('Borrower API Integration Tests', () => {
   beforeAll(async () => {
     // Optionally connect to a test database if not using a mock
     // await mongoose.connect(process.env.TEST_MONGODB_URI!);
+    await Borrower.deleteMany({});
+    await Loan.deleteMany({});
   });
 
   afterAll(async () => {
     // Clean up the database and close the server
     await Borrower.deleteMany({});
+    await Loan.deleteMany({});
     await mongoose.connection.close();
     server.close();
   });
